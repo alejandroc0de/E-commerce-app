@@ -26,9 +26,20 @@ document.addEventListener("DOMContentLoaded", async() => {
 const container = document.getElementById("productos")
 container.addEventListener("click", async(event) => {
     try{
+        //Event Delegation al container
         if(event.target.classList.contains("addToCart")){
             const nombreItem = event.target.getAttribute("data-name")
             console.log(nombreItem)
+        }
+        if(event.target.classList.contains("editar")){
+
+        }
+        if(event.target.classList.contains("borrar")){
+            const idProducto = event.target.getAttribute("data-id")
+            const res = await fetch (`/borrarProducto/${idProducto}`,{
+                method: "DELETE"
+            });
+            
         }
     }catch(err){
 
