@@ -1,0 +1,7 @@
+{
+  "watch": [
+    ".",
+    "/Users/alejandrocarrillo/EcomerceApp/client"
+  ],
+  "ext": "js html css"
+}

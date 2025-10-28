@@ -9,7 +9,6 @@ app.use(express.json())
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/index.html'));
 });
-app.use(express.static('client')); // Serves all the files in the directory 
 app.use(express.static(path.join(__dirname, '../client')));
 
 
