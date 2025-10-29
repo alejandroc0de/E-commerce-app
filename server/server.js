@@ -17,20 +17,20 @@ app.use(express.static(path.join(__dirname, '../client')));
 
 // Obteniendo los productos en POSTGRES
 
-app.get('/empleados', async (req,res) => {
+app.get('/productos', async (req,res) => {
     try {
         const result = await pool.query('SELECT * FROM productos')
         res.json(result.rows)
     }catch(err){
         console.log(err)
-        res.status(500).json({error : 'Error al obtner los productos de la base de datos'})
+        res.status(500).json({error : 'Error al obtener los productos de la base de datos'})
     }
 });
 
 app.delete('/borrarProducto/:id', async (req,res) => {
     try{
         const id = req.params.id; // se extrae el id 
-        await pool.query('DELETE FROM products where id = $1', [id]);
+        await pool.query('DELETE FROM productos WHERE id = $1', [id]);
         res.json ({mensaje: 'Producto eliminado correctamente'})
     }catch(err){
         console.log(err)
@@ -38,6 +38,16 @@ app.delete('/borrarProducto/:id', async (req,res) => {
     }
 })
 
+app.post('/nuevoProducto', async (req,res) => {
+    try{
+        const {nombre,categoria,precio,stock} = req.body
+        await pool.query('INSERT INTO productos (nombre, categoria, precio, stock) VALUES ($1, $2, $3, $4)',
+            [nombre,categoria,precio,stock])
+        res.json({mensaje: "Producto agregado"})    
+    }catch(err){
+        console.log(err)
+    }
+});
 
 
 app.listen(8081, ()=> {

@@ -1,6 +1,12 @@
-document.addEventListener("DOMContentLoaded", async() => {
+
+// Cargar productos al inicio
+document.addEventListener("DOMContentLoaded", () => {
+    loadProducts();
+})
+
+async function loadProducts() {
     try{
-        const res = await fetch ('/empleados') // por defect get, no methods 
+        const res = await fetch ('/productos') // por defect get, no methods 
         const productos = await res.json()
         container.innerHTML = '' 
         productos.forEach(element => {
@@ -20,10 +26,11 @@ document.addEventListener("DOMContentLoaded", async() => {
     }catch(err){
         console.log(err)
     }
-})
+}
 
-
+// Logic for each one of the cards on the DOM 
 const container = document.getElementById("productos")
+
 container.addEventListener("click", async(event) => {
     try{
         //Event Delegation al container
@@ -32,16 +39,40 @@ container.addEventListener("click", async(event) => {
             console.log(nombreItem)
         }
         if(event.target.classList.contains("editar")){
-
         }
         if(event.target.classList.contains("borrar")){
             const idProducto = event.target.getAttribute("data-id")
-            const res = await fetch (`/borrarProducto/${idProducto}`,{
-                method: "DELETE"
-            });
-            
+            console.log(idProducto)
+            await fetch (`/borrarProducto/${idProducto}`,{method: "DELETE"});
+            loadProducts();
         }
     }catch(err){
+        console.log(err)
+    }
+})
 
+// Logica para agregar nuevos productos
+const botonAgregar = document.getElementById("botonAgregar")
+botonAgregar.addEventListener("click", async() => {
+    try{
+        const nombre = document.getElementById("nombre").value
+        const categoria = document.getElementById("categoria").value
+        const precio = document.getElementById("precio").value
+        const stock = document.getElementById("stock").value
+        if(!nombre || !categoria || !precio || !stock){
+            alert("Llenar todos los campos")
+        }
+        else{
+            const data = {nombre,categoria,precio,stock}
+            const res = await fetch ('/nuevoProducto', {
+                method: "POST",
+                headers: {"Content-Type":"application/json"},
+                body: JSON.stringify(data)
+            });
+            loadProducts()
+        }    
+    }
+    catch(err){
+        console.log(err)
     }
 })
