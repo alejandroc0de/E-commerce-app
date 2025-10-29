@@ -4,6 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
     loadProducts();
 })
 
+const guardarCambiosBoton = document.getElementById("guardarCambios")
+guardarCambiosBoton.addEventListener("click",guardarCambios)
+const cerrarModalBoton = document.getElementById("cerrarModal")
+cerrarModalBoton.addEventListener("click",cerrarModal)
+
+
+
 async function loadProducts() {
     try{
         const res = await fetch ('/productos') // por defect get, no methods 
@@ -48,10 +55,11 @@ container.addEventListener("click", async(event) => {
             document.getElementById("edit-categoria").value = dataProducto.datos.categoria
             document.getElementById("edit-precio").value = dataProducto.datos.precio
             document.getElementById("edit-stock").value = dataProducto.datos.stock
-
+            
+            guardarCambiosBoton.dataset.id = idProducto
             const modal = document.getElementById("modalEditar")
             modal.classList.remove("hidden")
-            
+
         }
         if(event.target.classList.contains("borrar")){
             const idProducto = event.target.getAttribute("data-id")
@@ -63,6 +71,29 @@ container.addEventListener("click", async(event) => {
         console.log(err)
     }
 })
+
+//funciones para el modal
+function cerrarModal(){
+
+}
+async function guardarCambios(event) {
+    try{
+        const id = event.target.dataset.id // al boton le guardamos el product id en su dataset 
+        const nombre = document.getElementById("edit-nombre").value
+        const categoria = document.getElementById("edit-categoria").value
+        const precio = document.getElementById("edit-precio").value
+        const stock = document.getElementById("edit-stock").value
+        // Guardamos lo que el cliente haya cambiado o no 
+        await fetch (`/editProducto/${id}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({nombre,categoria,precio,stock})
+        })
+    }catch(err){  
+        console.log(err)
+    }
+}
+
 
 // Logica para agregar nuevos productos
 const botonAgregar = document.getElementById("botonAgregar")

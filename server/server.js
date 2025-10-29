@@ -3,7 +3,6 @@ const cors = require('cors');
 const path = require('path')
 const db = require('./db');
 const { pool } = require('./db');
-const { console } = require('inspector');
 const app = express();
 app.use(cors())
 app.use(express.json())
@@ -59,6 +58,16 @@ app.post('/nuevoProducto', async (req,res) => {
         console.log(err)
     }
 });
+
+app.put('/editProducto/:id', async (req,res) => {
+    try{
+        const id = req.params.id;
+        const { nombre, categoria, precio, stock } = req.body;
+        // TO DOOOO == SEND INFO TO DB!!
+    }catch(err){
+        console.log(err)
+    }
+})
 
 
 app.listen(8081, ()=> {
