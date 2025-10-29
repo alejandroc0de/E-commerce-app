@@ -27,6 +27,17 @@ app.get('/productos', async (req,res) => {
     }
 });
 
+app.get('/getProduct/:id', async (req,res) => {
+    try{
+        const id = req.params.id; // Extrae id 
+        const result = await pool.query('SELECT * FROM productos WHERE id = $1', [id]);
+        res.json({datos: result.rows[0]})
+    }catch(err){
+        res.status(500).json({error: "Error al traer los datos de la base de datos"})
+        console.log(err)
+    }
+})
+
 app.delete('/borrarProducto/:id', async (req,res) => {
     try{
         const id = req.params.id; // se extrae el id 

@@ -39,6 +39,19 @@ container.addEventListener("click", async(event) => {
             console.log(nombreItem)
         }
         if(event.target.classList.contains("editar")){
+            const idProducto = event.target.dataset.id // Se puede usar o dataset o getattribute}
+            console.log(idProducto)
+            //Antes de mostrar el modal, hacemos get de la db para obtener los current datos. 
+            const res = await fetch (`/getProduct/${idProducto}`)
+            const dataProducto = await res.json()
+            document.getElementById("edit-nombre").value = dataProducto.datos.nombre
+            document.getElementById("edit-categoria").value = dataProducto.datos.categoria
+            document.getElementById("edit-precio").value = dataProducto.datos.precio
+            document.getElementById("edit-stock").value = dataProducto.datos.stock
+
+            const modal = document.getElementById("modalEditar")
+            modal.classList.remove("hidden")
+            
         }
         if(event.target.classList.contains("borrar")){
             const idProducto = event.target.getAttribute("data-id")
@@ -69,7 +82,7 @@ botonAgregar.addEventListener("click", async() => {
                 headers: {"Content-Type":"application/json"},
                 body: JSON.stringify(data)
             });
-            loadProducts()
+            loadProducts() // Reload board
         }    
     }
     catch(err){
