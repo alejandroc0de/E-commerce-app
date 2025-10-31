@@ -1,16 +1,48 @@
 
+let carrito = [];
 // Cargar productos al inicio
 document.addEventListener("DOMContentLoaded", () => {
     loadProducts();
 })
 
+// ACTION LISTENERS FOR SAVE AND EDIT 
 const guardarCambiosBoton = document.getElementById("guardarCambios")
 guardarCambiosBoton.addEventListener("click",guardarCambios)
 const cerrarModalBoton = document.getElementById("cerrarModal")
 cerrarModalBoton.addEventListener("click",cerrarModal)
+const carritoSide = document.getElementById("carritoSidebar")
+const abrirCarrito = document.getElementById("abrirCarrito")
+const cerrarCarrito = document.getElementById("cerrarCarrito")
 
+abrirCarrito.addEventListener("click", () => {
+    carritoSide.classList.remove("hidden")
+    carritoSide.classList.add("mostrar")
+})
+cerrarCarrito.addEventListener("click", () => {
+    carritoSide.classList.remove("mostrar")
+    carritoSide.classList.add("hidden")
+})
 
+// RENDER CARRITO 
 
+function renderCarrito(){
+    const listaCarrito = document.getElementById("carritoLista")
+    const totalTexto = document.getElementById("carritoTotal")
+    listaCarrito.innerHTML = "";
+    carrito.forEach(item => {
+        const div = document.createElement("div")
+        div.innerHTML = `
+        ${item.nombre} - $${item.precio} x ${item.cantidad}
+            <button class="sumar" data-id="${item.id}">+</button>
+            <button class="restar" data-id="${item.id}">-</button>
+        `;
+        listaCarrito.appendChild(div);
+    })
+    const total  = carrito.reduce((acc, item) => acc +(item.precio * item.cantidad), 0)
+    totalTexto.textContent = `Total: $${total}`;
+}
+
+// FUNCION PARA LOAD CADA UNO DE LOS LOS PRODUCTOS
 async function loadProducts() {
     try{
         const res = await fetch ('/productos') // por defect get, no methods 
@@ -37,13 +69,25 @@ async function loadProducts() {
 
 // Logic for each one of the cards on the DOM 
 const container = document.getElementById("productos")
-
 container.addEventListener("click", async(event) => {
     try{
         //Event Delegation al container
         if(event.target.classList.contains("addToCart")){
             const nombreItem = event.target.getAttribute("data-name")
-            console.log(nombreItem)
+            const id = event.target.getAttribute("data-id")
+
+            // llamamos al db para tener la info actualizada
+            const res = await fetch(`/getProduct/${id}`)
+            const data = await res.json()
+            console.log(data)
+            const producto = {
+                id : data.datos.id,
+                nombre : data.datos.nombre,
+                precio : data.datos.precio,
+                cantidad : 1 
+            };
+            agregarAlCarrito(producto)
+            
         }
         if(event.target.classList.contains("editar")){
             const idProducto = event.target.dataset.id // Se puede usar o dataset o getattribute}
@@ -55,11 +99,9 @@ container.addEventListener("click", async(event) => {
             document.getElementById("edit-categoria").value = dataProducto.datos.categoria
             document.getElementById("edit-precio").value = dataProducto.datos.precio
             document.getElementById("edit-stock").value = dataProducto.datos.stock
-            
             guardarCambiosBoton.dataset.id = idProducto
             const modal = document.getElementById("modalEditar")
             modal.classList.remove("hidden")
-
         }
         if(event.target.classList.contains("borrar")){
             const idProducto = event.target.getAttribute("data-id")
@@ -72,9 +114,12 @@ container.addEventListener("click", async(event) => {
     }
 })
 
+
+
 //funciones para el modal
 function cerrarModal(){
-
+    const modal = document.getElementById("modalEditar")
+    modal.classList.add("hidden")
 }
 async function guardarCambios(event) {
     try{
@@ -89,6 +134,8 @@ async function guardarCambios(event) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({nombre,categoria,precio,stock})
         })
+        loadProducts()
+        cerrarModal()
     }catch(err){  
         console.log(err)
     }
@@ -113,10 +160,25 @@ botonAgregar.addEventListener("click", async() => {
                 headers: {"Content-Type":"application/json"},
                 body: JSON.stringify(data)
             });
-            loadProducts() // Reload board
+            loadProducts()
+             // Reload board
         }    
     }
     catch(err){
         console.log(err)
     }
 })
+
+
+// agregar al carrito function 
+function agregarAlCarrito(producto){
+    const existenteEnCarrito = carrito.find(item => item.id == producto.id );
+    console.log(existenteEnCarrito)
+    if (existenteEnCarrito){
+        existenteEnCarrito.cantidad++;
+    }else{
+        carrito.push(producto)
+    }
+    renderCarrito()
+    console.log(carrito)
+}
