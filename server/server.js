@@ -13,8 +13,6 @@ app.get('/', (req, res) => {
 app.use(express.static(path.join(__dirname, '../client')));
 
 
-
-
 // Obteniendo los productos en POSTGRES
 
 app.get('/productos', async (req,res) => {
@@ -70,6 +68,32 @@ app.put('/editProducto/:id', async (req,res) => {
     }catch(err){
         console.log(err)
         res.status(500).json({error:"Error al editar el producto"})
+    }
+});
+
+app.post("/crearOrden", async (req, res) => {
+    try{
+        const { carrito, total } = req.body;
+
+        const orden = await pool.query(
+            "INSERT INTO ordenes (total) VALUES ($1) RETURNING id",
+            [total]
+        );
+
+        const idOrden = orden.rows[0].id;
+
+        for(const item of carrito){
+            await pool.query(
+                `INSERT INTO orden_productos (orden_id, producto_id, cantidad)
+                 VALUES ($1, $2, $3)`,
+                [idOrden, item.id, item.cantidad]
+            );
+        }
+        res.json({ mensaje: "Orden creada con éxito", id_orden: idOrden });
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({ error: "Error creando orden" });
     }
 });
 

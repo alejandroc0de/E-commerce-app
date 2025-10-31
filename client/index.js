@@ -13,6 +13,8 @@ cerrarModalBoton.addEventListener("click",cerrarModal)
 const carritoSide = document.getElementById("carritoSidebar")
 const abrirCarrito = document.getElementById("abrirCarrito")
 const cerrarCarrito = document.getElementById("cerrarCarrito")
+const finalizarCompra = document.getElementById("finalizarCompra")
+
 
 abrirCarrito.addEventListener("click", () => {
     carritoSide.classList.remove("hidden")
@@ -22,6 +24,8 @@ cerrarCarrito.addEventListener("click", () => {
     carritoSide.classList.remove("mostrar")
     carritoSide.classList.add("hidden")
 })
+
+finalizarCompra.addEventListener("click", realizarCompra)
 
 // RENDER CARRITO 
 
@@ -113,6 +117,34 @@ container.addEventListener("click", async(event) => {
         console.log(err)
     }
 })
+
+async function realizarCompra() {
+    try {
+        if(carrito.length === 0){
+            alert("Carrito vacio, por favor agrega un producto")
+        }
+        const total = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+        const res = await fetch("/crearOrden", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ carrito, total })
+        });
+        const data = await res.json();
+        alert("Compra realizada con éxito. ID Orden: " + data.id_orden);
+
+        carrito = [];
+        renderCarrito();
+        carritoSide.classList.remove("mostrar");
+        carritoSide.classList.add("hidden");
+
+        
+    } catch (err) {
+        
+    }
+}
+
+
+
 
 
 
