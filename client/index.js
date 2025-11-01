@@ -144,10 +144,6 @@ async function realizarCompra() {
 }
 
 
-
-
-
-
 //funciones para el modal
 function cerrarModal(){
     const modal = document.getElementById("modalEditar")
